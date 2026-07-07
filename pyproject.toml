@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cgao"
+version = "0.1.0"
+description = "Chinese Generative AI Adoption Observatory"
+readme = "README.md"
+requires-python = ">=3.11"
+
+authors = [
+    {name="Duke Du"}
+]
+
+dependencies = [
+    "playwright",
+    "loguru",
+    "pydantic",
+    "python-dotenv",
+    "pandas",
+    "openpyxl"
+]
+
+[tool.setuptools]
+packages = ["cgao"]

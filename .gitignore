@@ -1,0 +1,51 @@
+# Python
+
+__pycache__/
+
+*.pyc
+
+cgao.egg-info
+
+# Build
+
+build/
+
+dist/
+
+*.egg-info/
+
+# macOS
+
+.DS_Store
+
+# Logs
+
+logs/
+
+# Data
+
+data/
+
+# Outputs
+
+outputs/
+
+# Login state
+
+storage/
+
+storage/state/
+
+storage/state/*.json
+
+# Playwright auth
+
+playwright/.auth/
+
+# Python
+
+.venv/
+
+__pycache__/
+
+*.pyc

@@ -1,0 +1,6 @@
+playwright>=1.54.0
+loguru>=0.7.3
+pydantic>=2.11.7
+python-dotenv>=1.1.1
+pandas>=2.3.1
+openpyxl>=3.1.5
