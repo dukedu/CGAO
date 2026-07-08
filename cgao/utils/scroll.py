@@ -7,31 +7,39 @@ class ScrollManager:
 
         self.page = page
 
-    def page_height(self):
+    def last_note(self):
 
-        return self.page.evaluate(
-            "document.body.scrollHeight"
-        )
+        cards = self.page.locator("section.note-item")
 
-    def scroll_once(self):
+        count = cards.count()
 
-        self.page.mouse.wheel(0, 2500)
+        if count == 0:
 
-        time.sleep(2)
+            return None
+
+        try:
+
+            href = cards.nth(count - 1).locator("a").first.get_attribute("href")
+
+            return href
+
+        except Exception:
+
+            return None
 
     def scroll_until_new(self):
 
-        old = self.page_height()
+        last = self.last_note()
 
-        self.scroll_once()
+        self.page.mouse.wheel(0, 4000)
 
-        for _ in range(10):
+        for _ in range(20):
 
-            time.sleep(0.5)
+            time.sleep(0.3)
 
-            new = self.page_height()
+            current = self.last_note()
 
-            if new > old:
+            if current != last:
 
                 return True
 

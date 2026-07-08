@@ -53,29 +53,36 @@ class XiaohongshuCrawler:
 
         scroll = ScrollManager(self.page)
 
-        posts = {}
-
         db = SQLiteDatabase()
 
         existing = db.existing_ids()
 
-        print(
-            f"SQLite Existing : {len(existing)}"
-        )
+        print(f"SQLite Existing : {len(existing)}")
 
-        new_posts = 0
+        posts = {}
+
+        empty_round = 0
 
         while len(posts) < limit:
 
             cards = search_page.cards()
 
+            if cards.count() > 0:
+
+                cards.last.scroll_into_view_if_needed()
+
             total = cards.count()
 
             print(
-                f"\rCollected: {len(posts)}/{limit} | Visible: {total}",
+                f"\rExisting:{len(existing)} "
+                f"New:{len(posts)} "
+                f"Target:{limit} "
+                f"Visible:{total}",
                 end="",
                 flush=True,
             )
+
+            before = len(posts)
 
             for i in range(total):
 
@@ -89,46 +96,44 @@ class XiaohongshuCrawler:
                         continue
 
                     if post.note_id in existing:
+                        continue
 
+                    if post.note_id in posts:
                         continue
 
                     posts[post.note_id] = post
 
-                    new_posts += 1
-
-                    print(
-
-                        f"\rExisting:{len(existing)} "
-
-                        f"New:{new_posts} "
-
-                        f"Total:{len(existing)+new_posts}",
-
-                        end="",
-
-                        flush=True
-
-                    )
-
                 except Exception:
+
                     continue
 
-            if len(posts) >= limit:
+            after = len(posts)
+
+            if after >= limit:
+
+                break
+
+            if after == before:
+
+                empty_round += 1
+
+            else:
+
+                empty_round = 0
+
+            if empty_round >= 3:
+
+                print("\nReach end.")
+
                 break
 
             if not scroll.scroll_until_new():
-
-                print("\nNo more new posts.")
 
                 break
 
         print()
 
-        posts = list(posts.values())[:limit]
-
-        db = SQLiteDatabase()
-
-        for post in posts:
+        for post in posts.values():
 
             db.insert(post)
 
@@ -138,17 +143,7 @@ class XiaohongshuCrawler:
 
         db.close()
 
-        print()
-
-        print("="*60)
-
-        print(f"Existing : {len(existing)}")
-
-        print(f"New      : {new_posts}")
-
-        print(f"Total    : {total}")
-
-        print("="*60)
+        posts = list(posts.values())
 
         output_dir = Path("data/raw")
 
@@ -159,22 +154,18 @@ class XiaohongshuCrawler:
 
         csv_path = output_dir / f"{self.keyword}.csv"
 
-        try:
+        CSVExporter().export(
+            posts,
+            csv_path,
+        )
 
-            CSVExporter().export(
+        print()
 
-                posts,
-
-                csv_path
-
-            )
-
-            print(f"CSV Saved -> {csv_path}")
-
-        except Exception as e:
-
-            print(e)
-
-        print(f"CSV Saved -> {csv_path}")
+        print("=" * 60)
+        print(f"Existing : {len(existing)}")
+        print(f"New      : {len(posts)}")
+        print(f"Total    : {total}")
+        print(f"CSV      : {csv_path}")
+        print("=" * 60)
 
         return posts
