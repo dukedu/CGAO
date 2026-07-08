@@ -74,3 +74,37 @@ class SQLiteDatabase:
     def close(self):
 
         self.conn.close()
+    
+    def exists(self, note_id):
+
+        cursor = self.conn.execute(
+
+            """
+            SELECT 1
+
+            FROM posts
+
+            WHERE note_id=?
+
+            LIMIT 1
+            """,
+
+            (note_id,)
+
+    )
+
+        return cursor.fetchone() is not None
+
+    def count(self):
+
+        cursor = self.conn.execute(
+
+            """
+            SELECT COUNT(*)
+
+            FROM posts
+            """
+
+        )
+
+        return cursor.fetchone()[0]

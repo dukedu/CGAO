@@ -55,6 +55,12 @@ class XiaohongshuCrawler:
 
         posts = {}
 
+        db = SQLiteDatabase()
+
+        print(
+            f"SQLite Existing : {db.count()}"
+        )
+
         while len(posts) < limit:
 
             cards = search_page.cards()
@@ -76,6 +82,10 @@ class XiaohongshuCrawler:
                     post = parser.parse(card)
 
                     if post is None:
+                        continue
+
+                    if db.exists(post.note_id):
+
                         continue
 
                     posts[post.note_id] = post
@@ -102,11 +112,20 @@ class XiaohongshuCrawler:
 
             db.insert(post)
 
+            print(
+                f"\rSaving SQLite : {post.note_id}",
+                end=""
+            )
+
         db.save()
+
+        total = db.count()
 
         db.close()
 
-        print("SQLite Saved.")
+        print()
+
+        print(f"SQLite Total : {total}")
 
         output_dir = Path("data/raw")
 
