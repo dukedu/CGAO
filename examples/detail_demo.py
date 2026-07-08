@@ -1,5 +1,6 @@
 from cgao.crawler.xiaohongshu import XiaohongshuCrawler
-from cgao.parsers.detail_parser import DetailParser
+from cgao.parsers.state_parser import StateParser
+
 
 crawler = XiaohongshuCrawler()
 
@@ -12,61 +13,36 @@ try:
     posts = crawler.collect(limit=1)
 
     if not posts:
-
-        raise SystemExit("No posts.")
-
-    post = posts[0]
+        raise RuntimeError("No posts found.")
 
     crawler.page.goto(
-        post.detail_url(),
+        posts[0].detail_url(),
         wait_until="domcontentloaded"
     )
 
     crawler.page.wait_for_timeout(3000)
 
-    parser = DetailParser(crawler.page)
+    html = crawler.page.content()
 
-    post = parser.parse(post)
+    result = StateParser.parse(html)
 
     print()
 
     print("=" * 80)
 
-    print("Title:")
-
-    print(post.title)
+    print(result.post)
 
     print()
 
-    print("Publish:")
-
-    print(post.publish_time)
+    print(result.author)
 
     print()
 
-    print("IP:")
-
-    print(post.ip_location)
+    print(result.images)
 
     print()
 
-    print("Like :", post.like_count)
-
-    print("Collect :", post.collect_count)
-
-    print("Comment :", post.comment_count)
-
-    print("Share :", post.share_count)
-
-    print()
-
-    print("Tags:")
-
-    print(post.tags)
-
-    print()
-
-    print("Images:", len(post.images))
+    print(result.tags)
 
     print("=" * 80)
 
