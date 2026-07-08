@@ -1,5 +1,4 @@
-from cgao.core.browser import Browser
-
+from cgao.core import Browser
 
 with Browser() as browser:
 
@@ -19,7 +18,4 @@ with Browser() as browser:
 
     browser.save_state()
 
-print(
-
-    "\nDone."
-)
+print("\nDone.")

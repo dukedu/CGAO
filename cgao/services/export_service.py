@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from cgao.exporters.csv_exporter import CSVExporter
@@ -12,21 +14,17 @@ class ExportService:
 
         self.json = JSONExporter()
 
-    def export_csv(self, posts, output):
+    def csv_export(
 
-        Path(output).parent.mkdir(
+        self,
 
-            parents=True,
+        posts,
 
-            exist_ok=True,
+        path,
 
-        )
+    ):
 
-        self.csv.export(posts, output)
-
-    def export_json(self, posts, output):
-
-        Path(output).parent.mkdir(
+        Path(path).parent.mkdir(
 
             parents=True,
 
@@ -34,4 +32,36 @@ class ExportService:
 
         )
 
-        self.json.export(posts, output)
+        self.csv.export(
+
+            posts,
+
+            path,
+
+        )
+
+    def json_export(
+
+        self,
+
+        posts,
+
+        path,
+
+    ):
+
+        Path(path).parent.mkdir(
+
+            parents=True,
+
+            exist_ok=True,
+
+        )
+
+        self.json.export(
+
+            posts,
+
+            path,
+
+        )

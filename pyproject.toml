@@ -27,4 +27,4 @@ packages = ["cgao"]
 
 [project.scripts]
 
-cgao = "cgao.cli.main:main"
+cgao = "cgao.cli:main"

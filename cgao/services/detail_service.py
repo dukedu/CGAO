@@ -1,8 +1,11 @@
-from cgao.parsers.state_parser import StateParser
+from __future__ import annotations
+
+from cgao.parsers import StateParser
 
 
 class DetailService:
 
-    def parse(self, html):
+    @staticmethod
+    def parse(html):
 
         return StateParser.parse(html)

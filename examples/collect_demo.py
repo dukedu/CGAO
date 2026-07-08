@@ -1,39 +1,19 @@
-from cgao.services import (
+from cgao.services import Pipeline
 
-    CrawlerService,
+pipe = Pipeline()
 
-    ExportService,
-
-)
-
-crawler = CrawlerService()
-
-export = ExportService()
-
-posts = crawler.collect(
+posts = pipe.collect(
 
     keyword="DeepSeek",
 
     limit=50,
 
-)
+    csv="data/raw/DeepSeek.csv",
 
-export.export_csv(
-
-    posts,
-
-    "data/raw/DeepSeek.csv",
-
-)
-
-export.export_json(
-
-    posts,
-
-    "data/raw/DeepSeek.json",
+    json="data/raw/DeepSeek.json",
 
 )
 
 print()
 
-print(f"Collected: {len(posts)}")
+print(f"Collected : {len(posts)}")

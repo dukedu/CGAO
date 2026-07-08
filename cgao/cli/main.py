@@ -1,64 +1,17 @@
+from __future__ import annotations
+
 import argparse
 
-from cgao.services import (
-
-    CrawlerService,
-
-    ExportService,
-
-)
+from cgao.services import Pipeline
 
 
-def collect(args):
-
-    crawler = CrawlerService()
-
-    exporter = ExportService()
-
-    posts = crawler.collect(
-
-        keyword=args.keyword,
-
-        limit=args.limit,
-
-    )
-
-    if args.csv:
-
-        exporter.export_csv(
-
-            posts,
-
-            f"data/raw/{args.keyword}.csv",
-
-        )
-
-    if args.json:
-
-        exporter.export_json(
-
-            posts,
-
-            f"data/raw/{args.keyword}.json",
-
-        )
-
-    print()
-
-    print("=" * 60)
-
-    print(f"Keyword : {args.keyword}")
-
-    print(f"Collected : {len(posts)}")
-
-    print("=" * 60)
-
-
-def main():
+def build_parser():
 
     parser = argparse.ArgumentParser(
 
-        prog="cgao"
+        prog="cgao",
+
+        description="CGAO Research Framework",
 
     )
 
@@ -66,15 +19,19 @@ def main():
 
         dest="command",
 
+        required=True,
+
     )
 
-    collect_parser = sub.add_parser(
+    collect = sub.add_parser(
 
         "collect",
 
+        help="Collect Xiaohongshu posts",
+
     )
 
-    collect_parser.add_argument(
+    collect.add_argument(
 
         "--keyword",
 
@@ -82,7 +39,7 @@ def main():
 
     )
 
-    collect_parser.add_argument(
+    collect.add_argument(
 
         "--limit",
 
@@ -92,7 +49,7 @@ def main():
 
     )
 
-    collect_parser.add_argument(
+    collect.add_argument(
 
         "--csv",
 
@@ -100,7 +57,7 @@ def main():
 
     )
 
-    collect_parser.add_argument(
+    collect.add_argument(
 
         "--json",
 
@@ -108,11 +65,75 @@ def main():
 
     )
 
+    collect.add_argument(
+
+        "--headless",
+
+        action="store_true",
+
+    )
+
+    return parser
+
+
+def collect(args):
+
+    pipe = Pipeline()
+
+    csv_path = (
+
+        f"data/raw/{args.keyword}.csv"
+
+        if args.csv
+
+        else None
+
+    )
+
+    json_path = (
+
+        f"data/raw/{args.keyword}.json"
+
+        if args.json
+
+        else None
+
+    )
+
+    posts = pipe.collect(
+
+        keyword=args.keyword,
+
+        limit=args.limit,
+
+        csv=csv_path,
+
+        json=json_path,
+
+    )
+
+    print()
+
+    print("=" * 60)
+
+    print(f"Keyword   : {args.keyword}")
+
+    print(f"Collected : {len(posts)}")
+
+    print("=" * 60)
+
+
+def main():
+
+    parser = build_parser()
+
     args = parser.parse_args()
 
-    if args.command == "collect":
+    match args.command:
 
-        collect(args)
+        case "collect":
+
+            collect(args)
 
 
 if __name__ == "__main__":
