@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from playwright.sync_api import Locator
 
 from cgao.models import Post
@@ -7,88 +9,30 @@ from cgao.models import Post
 
 class SearchParser:
 
-    @staticmethod
-    def _text(node, selector):
+    def parse(self, card: Locator):
 
-        try:
+        href = ""
 
-            return node.locator(
+        links = card.locator("a").all()
 
-                selector
+        for a in links:
 
-            ).inner_text().strip()
+            try:
+                href = a.get_attribute("href") or ""
+            except Exception:
+                continue
 
-        except Exception:
-
-            return ""
-
-    @staticmethod
-    def _attr(node, selector, name):
-
-        try:
-
-            return node.locator(
-
-                selector
-
-            ).get_attribute(
-
-                name
-
-            ) or ""
-
-        except Exception:
-
-            return ""
-
-    def parse(
-
-        self,
-
-        card: Locator,
-
-    ):
-
-        href = self._attr(
-
-            card,
-
-            "a",
-
-            "href",
-
-        )
+            if "/explore/" in href:
+                break
 
         if "/explore/" not in href:
-
             return None
 
-        note_id = href.split(
+        m = re.search(r"/explore/([A-Za-z0-9]+)", href)
 
-            "/explore/"
+        if not m:
+            return None
 
-        )[-1].split("?")[0]
-
-        post = Post(
-
-            note_id=note_id,
-
-            title=self._text(
-
-                card,
-
-                ".title",
-
-            ),
-
-            author=self._text(
-
-                card,
-
-                ".author",
-
-            ),
-
+        return Post(
+            note_id=m.group(1)
         )
-
-        return post

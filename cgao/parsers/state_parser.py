@@ -11,72 +11,71 @@ class StateParser:
     @staticmethod
     def parse(html: str):
 
-        state = StateParser.extract(html)
+        state = StateParser._load(html)
 
-        return StateParser.build(state)
+        return StateParser._find(state)
 
     @staticmethod
-    def extract(html: str):
+    def _load(html: str):
 
-        pattern = re.compile(
-
+        m = re.search(
             r"window\.__INITIAL_STATE__\s*=\s*(\{.*?\})\s*</script>",
-
+            html,
             re.S,
-
         )
 
-        match = pattern.search(html)
+        if not m:
+            raise RuntimeError("__INITIAL_STATE__ not found")
 
-        if match is None:
+        text = m.group(1)
 
-            raise RuntimeError(
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
 
-                "__INITIAL_STATE__ not found."
+            decoder = json.JSONDecoder()
 
-            )
+            state, _ = decoder.raw_decode(text)
 
-        text = match.group(1)
-
-        text = text.replace(
-
-            ":undefined",
-
-            ":null",
-
-        )
-
-        text = text.replace(
-
-            ":NaN",
-
-            ":null",
-
-        )
-
-        text = text.replace(
-
-            ":Infinity",
-
-            ":null",
-
-        )
-
-        return json.loads(text)
+            return state
 
     @staticmethod
-    def build(state):
+    def _find(obj):
 
-        note_map = state["note"]["noteDetailMap"]
+        if isinstance(obj, dict):
 
-        note = next(
+            if "noteId" in obj and "user" in obj:
 
-            iter(
+                return DetailParser.parse(obj)
 
-                note_map.values()
+            if "note" in obj and isinstance(obj["note"], dict):
 
-            )
+                note = obj["note"]
 
-        )["note"]
+                if "noteId" in note:
 
-        return DetailParser.parse(note)
+                    return DetailParser.parse(note)
+
+            for value in obj.values():
+
+                try:
+
+                    return StateParser._find(value)
+
+                except Exception:
+
+                    pass
+
+        elif isinstance(obj, list):
+
+            for item in obj:
+
+                try:
+
+                    return StateParser._find(item)
+
+                except Exception:
+
+                    pass
+
+        raise RuntimeError("Note object not found.")
