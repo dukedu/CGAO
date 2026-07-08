@@ -4,11 +4,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
 
-# Distribution
+# Build
 build/
 dist/
 *.egg-info/
@@ -19,23 +17,17 @@ venv/
 env/
 ENV/
 
-# pytest
+# Cache
 .pytest_cache/
-
-# mypy
 .mypy_cache/
-
-# Ruff
 .ruff_cache/
+.ipynb_checkpoints/
 
 # Coverage
 .coverage
 htmlcov/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# VS Code
+# IDE
 .vscode/
 
 # macOS
@@ -45,21 +37,31 @@ htmlcov/
 *.log
 
 # =========================
-# Authentication (IMPORTANT)
+# Runtime Data
 # =========================
-storage/
 storage/state/
 storage/state/*.json
 
-# Playwright Auth
-playwright/.auth/
+logs/*
+!logs/.gitkeep
 
-# Future Auth Folder
+outputs/*
+!outputs/.gitkeep
+
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+data/database/*
+!data/database/.gitkeep
+
+# Authentication
+playwright/.auth/
 .cgao/
 
-# =========================
 # Local Config
-# =========================
 .env
 .env.*
 config.local.py
