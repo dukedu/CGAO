@@ -1,130 +1,80 @@
-from pathlib import Path
+from __future__ import annotations
+
 import sqlite3
 
+from cgao.core import DATABASE_PATH
 
-class SQLiteDatabase:
+from .schema import create_tables
 
-    def __init__(self, db="data/database/cgao.db"):
 
-        Path(db).parent.mkdir(
-            parents=True,
-            exist_ok=True
-        )
+class SQLite:
 
-        self.conn = sqlite3.connect(db)
+    def __init__(
 
-        self.create()
+        self,
 
-    def create(self):
+        path=DATABASE_PATH,
 
-        self.conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS posts(
+    ):
 
-                note_id TEXT PRIMARY KEY,
-
-                title TEXT,
-
-                author TEXT,
-
-                like_count INTEGER,
-
-                url TEXT,
-
-                xsec_token TEXT
-
-            )
-            """
-        )
-
-        self.conn.commit()
-
-    def insert(self, post):
+        self.conn = sqlite3.connect(path)
 
         self.conn.execute(
 
-            """
-            INSERT OR REPLACE INTO posts
-
-            VALUES (?,?,?,?,?,?)
-            """,
-
-            (
-
-                post.note_id,
-
-                post.title,
-
-                post.author,
-
-                post.like_count,
-
-                post.url,
-
-                post.xsec_token
-
-            )
+            "PRAGMA foreign_keys=ON"
 
         )
 
-    def save(self):
+        create_tables(
+
+            self.conn
+
+        )
+
+    def execute(
+
+        self,
+
+        sql,
+
+        params=(),
+
+    ):
+
+        return self.conn.execute(
+
+            sql,
+
+            params,
+
+        )
+
+    def executemany(
+
+        self,
+
+        sql,
+
+        params,
+
+    ):
+
+        return self.conn.executemany(
+
+            sql,
+
+            params,
+
+        )
+
+    def commit(self):
 
         self.conn.commit()
+
+    def rollback(self):
+
+        self.conn.rollback()
 
     def close(self):
 
         self.conn.close()
-    
-    def exists(self, note_id):
-
-        cursor = self.conn.execute(
-
-            """
-            SELECT 1
-
-            FROM posts
-
-            WHERE note_id=?
-
-            LIMIT 1
-            """,
-
-            (note_id,)
-
-    )
-
-        return cursor.fetchone() is not None
-
-    def count(self):
-
-        cursor = self.conn.execute(
-
-            """
-            SELECT COUNT(*)
-
-            FROM posts
-            """
-
-        )
-
-        return cursor.fetchone()[0]
-    
-    def existing_ids(self):
-
-        cursor = self.conn.execute(
-
-            """
-            SELECT note_id
-
-            FROM posts
-            """
-
-        )
-
-        return {
-
-            row[0]
-
-            for row in cursor.fetchall()
-
-        }
