@@ -1,134 +1,255 @@
-import re
+from __future__ import annotations
 
-from cgao.models.post import Post
+from datetime import datetime
+
+from cgao.models import DetailResult
+from cgao.models import Image
+from cgao.models import Post
+from cgao.models import Tag
+
+from .author_parser import AuthorParser
 
 
 class DetailParser:
 
-    def __init__(self, page):
+    @staticmethod
+    def parse(note: dict) -> DetailResult:
 
-        self.page = page
+        interact = note.get(
 
-    def _text(self, selector):
+            "interactInfo",
 
-        try:
-            return self.page.locator(selector).first.inner_text().strip()
-        except:
-            return ""
-
-    def _texts(self, selector):
-
-        try:
-            return [
-                t.strip()
-                for t in self.page.locator(selector).all_inner_texts()
-            ]
-        except:
-            return []
-
-    def _images(self):
-
-        imgs = []
-
-        try:
-
-            loc = self.page.locator("img")
-
-            for i in range(loc.count()):
-
-                src = loc.nth(i).get_attribute("src")
-
-                if not src:
-                    continue
-
-                if "sns-webpic" in src:
-
-                    imgs.append(src)
-
-        except:
-            pass
-
-        return list(dict.fromkeys(imgs))
-
-    def _numbers(self):
-
-        result = {
-
-            "like": 0,
-
-            "collect": 0,
-
-            "comment": 0,
-
-            "share": 0
-
-        }
-
-        try:
-
-            text = self.page.locator("body").inner_text()
-
-            nums = re.findall(r"\d+", text)
-
-            if len(nums) >= 4:
-
-                result["like"] = int(nums[0])
-
-                result["collect"] = int(nums[1])
-
-                result["comment"] = int(nums[2])
-
-                result["share"] = int(nums[3])
-
-        except:
-            pass
-
-        return result
-
-    def parse(self, post: Post):
-
-        post.content = self._text("#detail-desc")
-
-        post.tags = self._texts("a[href*='/search_result']")
-
-        post.images = self._images()
-
-        text = self.page.locator("body").inner_text()
-
-        m = re.search(
-
-            r"\d{4}-\d{2}-\d{2}.*",
-
-            text
+            {},
 
         )
 
-        if m:
+        post = Post(
 
-            line = m.group()
+            note_id=note.get(
 
-            post.publish_time = line
+                "noteId",
 
-            ip = re.search(
+                "",
 
-                r"IP.*?[:：]\s*(.*)",
+            ),
 
-                line
+            title=note.get(
+
+                "title",
+
+                "",
+
+            ),
+
+            content=note.get(
+
+                "desc",
+
+                "",
+
+            ),
+
+            author_id=note["user"].get(
+
+                "userId",
+
+                "",
+
+            ),
+
+            author=note["user"].get(
+
+                "nickname",
+
+                "",
+
+            ),
+
+            publish_time=DetailParser._time(
+
+                note.get(
+
+                    "time",
+
+                    0,
+
+                )
+
+            ),
+
+            ip_location=note.get(
+
+                "ipLocation",
+
+                "",
+
+            ),
+
+            like_count=int(
+
+                interact.get(
+
+                    "likedCount",
+
+                    0,
+
+                )
+
+            ),
+
+            collect_count=int(
+
+                interact.get(
+
+                    "collectedCount",
+
+                    0,
+
+                )
+
+            ),
+
+            comment_count=int(
+
+                interact.get(
+
+                    "commentCount",
+
+                    0,
+
+                )
+
+            ),
+
+            share_count=int(
+
+                interact.get(
+
+                    "shareCount",
+
+                    0,
+
+                )
+
+            ),
+
+            xsec_token=note.get(
+
+                "xsecToken",
+
+                "",
+
+            ),
+
+        )
+
+        author = AuthorParser.parse(
+
+            note
+
+        )
+
+        images = []
+
+        for idx, img in enumerate(
+
+            note.get(
+
+                "imageList",
+
+                [],
 
             )
 
-            if ip:
+        ):
 
-                post.ip_location = ip.group(1)
+            images.append(
 
-        stat = self._numbers()
+                Image(
 
-        post.like_count = stat["like"]
+                    note_id=post.note_id,
 
-        post.collect_count = stat["collect"]
+                    url=img.get(
 
-        post.comment_count = stat["comment"]
+                        "urlDefault",
 
-        post.share_count = stat["share"]
+                        "",
 
-        return post
+                    ),
+
+                    width=img.get(
+
+                        "width",
+
+                        0,
+
+                    ),
+
+                    height=img.get(
+
+                        "height",
+
+                        0,
+
+                    ),
+
+                    order=idx,
+
+                )
+
+            )
+
+        tags = []
+
+        for t in note.get(
+
+            "tagList",
+
+            [],
+
+        ):
+
+            tags.append(
+
+                Tag(
+
+                    name=t.get(
+
+                        "name",
+
+                        "",
+
+                    )
+
+                )
+
+            )
+
+        return DetailResult(
+
+            post=post,
+
+            author=author,
+
+            images=images,
+
+            tags=tags,
+
+        )
+
+    @staticmethod
+    def _time(ts):
+
+        if not ts:
+
+            return ""
+
+        return datetime.fromtimestamp(
+
+            ts / 1000
+
+        ).strftime(
+
+            "%Y-%m-%d %H:%M:%S"
+
+        )

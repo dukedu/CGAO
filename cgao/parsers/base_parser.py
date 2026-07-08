@@ -1,9 +1,11 @@
-from abc import ABC, abstractmethod
+from __future__ import annotations
+
+from abc import ABC
+from abc import abstractmethod
 
 
 class BaseParser(ABC):
 
     @abstractmethod
-    def parse(self, *args, **kwargs):
-        """Parse source into domain model."""
+    def parse(self, source):
         raise NotImplementedError

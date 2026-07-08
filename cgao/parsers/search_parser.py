@@ -1,160 +1,94 @@
-from urllib.parse import urlparse, parse_qs
+from __future__ import annotations
 
-from cgao.models.post import Post
+from playwright.sync_api import Locator
+
+from cgao.models import Post
 
 
 class SearchParser:
 
-    def _safe_text(self, locator):
+    @staticmethod
+    def _text(node, selector):
 
         try:
 
-            if locator.count() == 0:
-                return ""
+            return node.locator(
 
-            return locator.first.inner_text(timeout=3000).strip()
+                selector
+
+            ).inner_text().strip()
 
         except Exception:
 
             return ""
 
-    def _safe_attr(self, locator, attr):
+    @staticmethod
+    def _attr(node, selector, name):
 
         try:
 
-            if locator.count() == 0:
-                return None
+            return node.locator(
 
-            return locator.first.get_attribute(attr)
+                selector
 
-        except Exception:
+            ).get_attribute(
 
-            return None
+                name
 
-    def _parse_like(self, text):
-
-        if not text:
-            return 0
-
-        text = text.replace(",", "").strip()
-
-        try:
-
-            if text.endswith("万"):
-
-                return int(float(text[:-1]) * 10000)
-
-            if text.endswith("亿"):
-
-                return int(float(text[:-1]) * 100000000)
-
-            return int(text)
+            ) or ""
 
         except Exception:
 
-            return 0
+            return ""
 
-    def _get_href(self, card):
+    def parse(
 
-        """
-        Find the first search_result href.
-        This is much more stable than relying on CSS classes.
-        """
+        self,
 
-        links = card.locator("a[href]")
+        card: Locator,
 
-        count = links.count()
+    ):
 
-        for i in range(count):
+        href = self._attr(
 
-            try:
+            card,
 
-                href = links.nth(i).get_attribute("href")
+            "a",
 
-                if href and "/search_result/" in href:
-
-                    return href
-
-            except Exception:
-
-                continue
-
-        return None
-
-    def parse(self, card):
-
-        title = self._safe_text(
-
-            card.locator("a.title span")
+            "href",
 
         )
 
-        if not title:
+        if "/explore/" not in href:
 
             return None
 
-        author = self._safe_text(
+        note_id = href.split(
 
-            card.locator(".name")
+            "/explore/"
 
-        )
+        )[-1].split("?")[0]
 
-        like_count = self._parse_like(
-
-            self._safe_text(
-
-                card.locator(".count")
-
-            )
-
-        )
-
-        href = self._get_href(card)
-
-        if href is None:
-
-            return None
-
-        if href.startswith("/"):
-
-            href = "https://www.xiaohongshu.com" + href
-
-        parsed = urlparse(href)
-
-        note_id = parsed.path.split("/")[-1]
-
-        query = parse_qs(parsed.query)
-
-        xsec_token = query.get(
-
-            "xsec_token",
-
-            [""]
-
-        )[0]
-
-        xsec_source = query.get(
-
-            "xsec_source",
-
-            [""]
-
-        )[0]
-
-        return Post(
+        post = Post(
 
             note_id=note_id,
 
-            title=title,
+            title=self._text(
 
-            author=author,
+                card,
 
-            like_count=like_count,
+                ".title",
 
-            url=href,
+            ),
 
-            xsec_token=xsec_token,
+            author=self._text(
 
-            xsec_source=xsec_source,
+                card,
+
+                ".author",
+
+            ),
 
         )
+
+        return post

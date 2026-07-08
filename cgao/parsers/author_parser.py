@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from cgao.models import Author
 
 
@@ -10,12 +12,16 @@ class AuthorParser:
 
         return Author(
 
-            author_id=user["userId"],
+            author_id=user.get("userId", ""),
 
-            nickname=user["nickname"],
+            nickname=user.get("nickname", ""),
 
             avatar=user.get("avatar", ""),
 
-            xsec_token=user.get("xsecToken", "")
+            xsec_token=user.get("xsecToken", ""),
+
+            description=user.get("desc", ""),
+
+            gender=str(user.get("gender", "")),
 
         )
