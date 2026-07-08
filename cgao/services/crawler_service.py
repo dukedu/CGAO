@@ -1,28 +1,39 @@
+from __future__ import annotations
+
 from cgao.crawler.xiaohongshu import XiaohongshuCrawler
 
 
 class CrawlerService:
 
-    def __init__(self):
+    def __init__(self, headless=None):
 
-        self.crawler = XiaohongshuCrawler()
+        self.crawler = XiaohongshuCrawler(
+            headless=headless
+        )
 
-    def collect(
-
-        self,
-
-        keyword,
-
-        limit=100,
-
-    ):
+    def open(self):
 
         self.crawler.open()
 
-        self.crawler.search(keyword)
-
-        posts = self.crawler.collect(limit)
+    def close(self):
 
         self.crawler.close()
 
-        return posts
+    def search(
+        self,
+        keyword: str,
+    ):
+
+        self.crawler.search(keyword)
+
+    def collect(
+        self,
+        keyword: str,
+        limit: int = 100,
+    ):
+
+        self.open()
+
+        self.search(keyword)
+
+        return self.crawler.collect(limit)

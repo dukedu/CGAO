@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from cgao.services.crawler_service import CrawlerService
+from cgao.services.database_service import DatabaseService
+from cgao.services.detail_collector import DetailCollector
 from cgao.services.export_service import ExportService
 
 
@@ -10,48 +12,65 @@ class Pipeline:
 
         self.crawler = CrawlerService()
 
+        self.database = DatabaseService()
+
         self.exporter = ExportService()
 
     def collect(
-
         self,
-
-        keyword,
-
-        limit=100,
-
-        csv=None,
-
-        json=None,
-
+        keyword: str,
+        limit: int = 100,
+        csv: str | None = None,
+        json: str | None = None,
     ):
 
-        posts = self.crawler.collect(
+        try:
 
-            keyword,
-
-            limit,
-
-        )
-
-        if csv:
-
-            self.exporter.csv_export(
-
-                posts,
-
-                csv,
-
+            posts = self.crawler.collect(
+                keyword=keyword,
+                limit=limit,
             )
 
-        if json:
-
-            self.exporter.json_export(
-
-                posts,
-
-                json,
-
+            collector = DetailCollector(
+                self.crawler.crawler
             )
 
-        return posts
+            results = []
+
+            for post in posts:
+
+                try:
+
+                    result = collector.collect(post)
+
+                except Exception as e:
+
+                    print(e)
+
+                    continue
+
+                self.database.save(result)
+
+                results.append(result.post)
+
+            if csv:
+
+                self.exporter.csv_export(
+                    results,
+                    csv,
+                )
+
+            if json:
+
+                self.exporter.json_export(
+                    results,
+                    json,
+                )
+
+            return results
+
+        finally:
+
+            self.database.close()
+
+            self.crawler.close()
