@@ -1,51 +1,65 @@
+# =========================
 # Python
-
+# =========================
 __pycache__/
+*.py[cod]
+*$py.class
 
-*.pyc
+# C extensions
+*.so
 
-cgao.egg-info
-
-# Build
-
+# Distribution
 build/
-
 dist/
-
 *.egg-info/
 
-# macOS
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
 
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# macOS
 .DS_Store
 
 # Logs
+*.log
 
-logs/
-
-# Data
-
-data/
-
-# Outputs
-
-outputs/
-
-# Login state
-
+# =========================
+# Authentication (IMPORTANT)
+# =========================
 storage/
-
 storage/state/
-
 storage/state/*.json
 
-# Playwright auth
-
+# Playwright Auth
 playwright/.auth/
 
-# Python
+# Future Auth Folder
+.cgao/
 
-.venv/
-
-__pycache__/
-
-*.pyc
+# =========================
+# Local Config
+# =========================
+.env
+.env.*
+config.local.py
