@@ -10,15 +10,19 @@ try:
 
     crawler.search("DeepSeek")
 
-    input("\n搜索完成后按 Enter 开始采集...")
+    print("\n开始自动采集...\n")
 
-    posts = crawler.collect(limit=5)
+    posts = crawler.collect(limit=100)
 
-    print("\n")
+    print()
 
     print("=" * 80)
 
-    for i, post in enumerate(posts, start=1):
+    print(f"Collected {len(posts)} posts")
+
+    print("=" * 80)
+
+    for i, post in enumerate(posts[:10], start=1):
 
         print(f"[{i}]")
 

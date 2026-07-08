@@ -6,6 +6,7 @@ from cgao.crawler.browser import Browser
 from cgao.pages.home_page import HomePage
 from cgao.pages.search_page import SearchPage
 from cgao.parsers.search_parser import SearchParser
+from cgao.utils.scroll import ScrollManager
 
 
 class XiaohongshuCrawler:
@@ -36,42 +37,46 @@ class XiaohongshuCrawler:
 
         self.browser.stop()
 
-    def collect(self, limit=10):
+    def collect(self, limit=100):
 
         search_page = SearchPage(self.page)
 
         parser = SearchParser()
 
-        cards = search_page.cards()
+        scroll = ScrollManager(self.page)
 
-        total = min(cards.count(), limit)
+        posts = {}
 
-        print(f"\nFound {total} posts\n")
+        while len(posts) < limit:
 
-        posts = []
+            cards = search_page.cards()
 
-        for i in range(total):
+            total = cards.count()
 
-            try:
+            print(f"\rCollected: {len(posts)} | Visible: {total}", end="")
 
-                card = cards.nth(i)
+            for i in range(total):
 
-                post = parser.parse(card)
+                try:
 
-                if post is None:
+                    card = cards.nth(i)
 
-                    print(f"Skip Card {i}")
+                    post = parser.parse(card)
 
+                    if post is None:
+                        continue
+
+                    posts[post.note_id] = post
+
+                except Exception:
                     continue
 
-                posts.append(post)
+            if len(posts) >= limit:
+                break
 
-            except Exception as e:
+            if not scroll.scroll_until_new():
+                break
 
-                print(f"Card {i} Failed")
+        print()
 
-                print(e)
-
-                continue
-
-        return posts
+        return list(posts.values())[:limit]
