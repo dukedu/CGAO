@@ -10,6 +10,7 @@ from cgao.pages.home_page import HomePage
 from cgao.pages.search_page import SearchPage
 from cgao.parsers.search_parser import SearchParser
 from cgao.utils.scroll import ScrollManager
+from cgao.database.sqlite import SQLiteDatabase
 
 
 class XiaohongshuCrawler:
@@ -95,6 +96,18 @@ class XiaohongshuCrawler:
 
         posts = list(posts.values())[:limit]
 
+        db = SQLiteDatabase()
+
+        for post in posts:
+
+            db.insert(post)
+
+        db.save()
+
+        db.close()
+
+        print("SQLite Saved.")
+
         output_dir = Path("data/raw")
 
         output_dir.mkdir(
@@ -104,10 +117,21 @@ class XiaohongshuCrawler:
 
         csv_path = output_dir / f"{self.keyword}.csv"
 
-        CSVExporter().export(
-            posts,
-            csv_path,
-        )
+        try:
+
+            CSVExporter().export(
+
+                posts,
+
+                csv_path
+
+            )
+
+            print(f"CSV Saved -> {csv_path}")
+
+        except Exception as e:
+
+            print(e)
 
         print(f"CSV Saved -> {csv_path}")
 
