@@ -1,46 +1,17 @@
-import argparse
+from cgao.services.crawler_service import CrawlerService
 
-from cgao.crawler.xiaohongshu import XiaohongshuCrawler
+crawler = CrawlerService()
 
+posts = crawler.collect(
 
-parser = argparse.ArgumentParser()
+    keyword="DeepSeek",
 
-parser.add_argument(
-    "--keyword",
-    default="DeepSeek"
+    limit=20,
+
 )
 
-parser.add_argument(
-    "--limit",
-    type=int,
-    default=100
-)
+print()
 
-args = parser.parse_args()
+print(len(posts))
 
-
-crawler = XiaohongshuCrawler(
-    headless=False
-)
-
-try:
-
-    crawler.open()
-
-    crawler.search(args.keyword)
-
-    posts = crawler.collect(
-        limit=args.limit
-    )
-
-    print()
-
-    print("=" * 80)
-
-    print(f"Collected {len(posts)} posts")
-
-    print("=" * 80)
-
-finally:
-
-    crawler.close()
+print(posts[0])

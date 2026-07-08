@@ -1,31 +1,28 @@
-"""
-Crawler Service
-"""
-
 from cgao.crawler.xiaohongshu import XiaohongshuCrawler
 
 
 class CrawlerService:
 
-    def __init__(self, headless=False):
-        self.headless = headless
+    def __init__(self):
 
-    def search_and_collect(self, keyword: str, limit: int = 10):
+        self.crawler = XiaohongshuCrawler()
 
-        crawler = XiaohongshuCrawler(headless=self.headless)
+    def collect(
 
-        try:
+        self,
 
-            crawler.open()
+        keyword,
 
-            crawler.search(keyword)
+        limit=100,
 
-            input("\nSearch finished. Press ENTER to collect...")
+    ):
 
-            posts = crawler.collect(limit)
+        self.crawler.open()
 
-            return posts
+        self.crawler.search(keyword)
 
-        finally:
+        posts = self.crawler.collect(limit)
 
-            crawler.close()
+        self.crawler.close()
+
+        return posts
