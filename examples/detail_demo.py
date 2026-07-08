@@ -33,22 +33,40 @@ try:
     print("=" * 80)
 
     print("Title:")
+
     print(post.title)
 
     print()
 
-    print("Content:")
-    print(post.content)
+    print("Publish:")
+
+    print(post.publish_time)
+
+    print()
+
+    print("IP:")
+
+    print(post.ip_location)
+
+    print()
+
+    print("Like :", post.like_count)
+
+    print("Collect :", post.collect_count)
+
+    print("Comment :", post.comment_count)
+
+    print("Share :", post.share_count)
 
     print()
 
     print("Tags:")
+
     print(post.tags)
 
     print()
 
-    print("Images:")
-    print(len(post.images))
+    print("Images:", len(post.images))
 
     print("=" * 80)
 

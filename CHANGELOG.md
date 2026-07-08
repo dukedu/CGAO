@@ -32,19 +32,19 @@ Future versions will follow Semantic Versioning (SemVer).
 ## v0.2.9 (2026-07-08)
 
 ### Added
-- Infinite scroll
-- SQLite storage
+- Stable search crawler
 - Resume collection
+- SQLite storage
 - CSV exporter
 - Benchmark tool
 - Database info tool
 
 ### Improved
-- Better duplicate detection
-- Faster scrolling
-- Stable login state
+- Infinite scrolling
+- Duplicate detection
+- Export performance
 
-### Fixed
-- SQLite connection issue
-- CSV export issue
-- Resume statistics
+### Research
+- Verified Xiaohongshu detail page data source
+- Confirmed `window.__INITIAL_STATE__` contains structured note data
+- Planned migration to State Parser architecture
