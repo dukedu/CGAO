@@ -57,9 +57,13 @@ class XiaohongshuCrawler:
 
         db = SQLiteDatabase()
 
+        existing = db.existing_ids()
+
         print(
-            f"SQLite Existing : {db.count()}"
+            f"SQLite Existing : {len(existing)}"
         )
+
+        new_posts = 0
 
         while len(posts) < limit:
 
@@ -84,11 +88,27 @@ class XiaohongshuCrawler:
                     if post is None:
                         continue
 
-                    if db.exists(post.note_id):
+                    if post.note_id in existing:
 
                         continue
 
                     posts[post.note_id] = post
+
+                    new_posts += 1
+
+                    print(
+
+                        f"\rExisting:{len(existing)} "
+
+                        f"New:{new_posts} "
+
+                        f"Total:{len(existing)+new_posts}",
+
+                        end="",
+
+                        flush=True
+
+                    )
 
                 except Exception:
                     continue
@@ -112,11 +132,6 @@ class XiaohongshuCrawler:
 
             db.insert(post)
 
-            print(
-                f"\rSaving SQLite : {post.note_id}",
-                end=""
-            )
-
         db.save()
 
         total = db.count()
@@ -125,7 +140,15 @@ class XiaohongshuCrawler:
 
         print()
 
-        print(f"SQLite Total : {total}")
+        print("="*60)
+
+        print(f"Existing : {len(existing)}")
+
+        print(f"New      : {new_posts}")
+
+        print(f"Total    : {total}")
+
+        print("="*60)
 
         output_dir = Path("data/raw")
 

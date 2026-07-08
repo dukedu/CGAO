@@ -108,3 +108,23 @@ class SQLiteDatabase:
         )
 
         return cursor.fetchone()[0]
+    
+    def existing_ids(self):
+
+        cursor = self.conn.execute(
+
+            """
+            SELECT note_id
+
+            FROM posts
+            """
+
+        )
+
+        return {
+
+            row[0]
+
+            for row in cursor.fetchall()
+
+        }
