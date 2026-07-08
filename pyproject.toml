@@ -24,3 +24,7 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["cgao"]
+
+[project.scripts]
+
+cgao = "cgao.cli.main:main"

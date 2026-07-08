@@ -2,7 +2,7 @@
 Xiaohongshu Crawler
 """
 
-from cgao.crawler.browser import Browser
+from cgao.core.browser import Browser
 from cgao.pages.home_page import HomePage
 from cgao.pages.search_page import SearchPage
 from cgao.parsers.search_parser import SearchParser
@@ -11,15 +11,13 @@ from cgao.utils.scroll import ScrollManager
 
 class XiaohongshuCrawler:
 
-    def __init__(self, headless=False):
+    def __init__(self, headless=None):
 
         self.browser = Browser(headless=headless)
 
         self.page = None
 
         self.home = None
-
-        self.keyword = None
 
     def open(self):
 
@@ -35,39 +33,37 @@ class XiaohongshuCrawler:
 
     def search(self, keyword: str):
 
-        self.keyword = keyword
-
         self.home.open()
 
         self.home.search(keyword)
 
-    def collect(self, limit=100):
-
-        search_page = SearchPage(self.page)
+    def collect(self, limit: int = 100):
 
         parser = SearchParser()
+
+        page = SearchPage(self.page)
 
         scroll = ScrollManager(self.page)
 
         posts = {}
 
-        empty_round = 0
+        empty_scroll = 0
 
         while len(posts) < limit:
 
-            cards = search_page.cards()
+            cards = page.cards()
 
-            if cards.count() == 0:
+            total = cards.count()
+
+            if total == 0:
 
                 break
 
             cards.last.scroll_into_view_if_needed()
 
-            total = cards.count()
-
             print(
 
-                f"\rCollected:{len(posts)}/{limit} | Visible:{total}",
+                f"\rCollected: {len(posts)}/{limit} | Visible: {total}",
 
                 end="",
 
@@ -81,41 +77,41 @@ class XiaohongshuCrawler:
 
                 try:
 
-                    card = cards.nth(i)
+                    post = parser.parse(
 
-                    post = parser.parse(card)
+                        cards.nth(i)
 
-                    if post is None:
-
-                        continue
-
-                    if post.note_id in posts:
-
-                        continue
-
-                    posts[post.note_id] = post
-
-                    if len(posts) >= limit:
-
-                        break
+                    )
 
                 except Exception:
 
                     continue
 
-            if len(posts) >= limit:
+                if post is None:
 
-                break
+                    continue
+
+                posts.setdefault(
+
+                    post.note_id,
+
+                    post
+
+                )
+
+                if len(posts) >= limit:
+
+                    break
 
             if len(posts) == before:
 
-                empty_round += 1
+                empty_scroll += 1
 
             else:
 
-                empty_round = 0
+                empty_scroll = 0
 
-            if empty_round >= 3:
+            if empty_scroll >= 3:
 
                 print("\nNo more new posts.")
 
@@ -123,7 +119,7 @@ class XiaohongshuCrawler:
 
             if not scroll.scroll_until_new():
 
-                print("\nScroll end.")
+                print("\nReach end.")
 
                 break
 

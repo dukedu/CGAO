@@ -1,3 +1,4 @@
+from .config_service import ConfigService
 from .crawler_service import CrawlerService
 from .database_service import DatabaseService
 from .detail_service import DetailService

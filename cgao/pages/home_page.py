@@ -6,7 +6,7 @@ Responsible for all interactions on Xiaohongshu home page.
 
 from playwright.sync_api import Page
 
-from cgao.logger import logger
+from cgao.core.logger import logger
 
 
 class HomePage:

@@ -1,0 +1,35 @@
+browser:
+
+  headless: false
+
+  timeout: 30000
+
+  viewport:
+
+    width: 1440
+
+    height: 900
+
+crawler:
+
+  scroll_interval: 1.2
+
+  max_empty_scroll: 3
+
+  retry: 3
+
+database:
+
+  path: data/database/cgao.db
+
+export:
+
+  csv: data/raw
+
+  json: data/raw
+
+log:
+
+  level: INFO
+
+  path: logs/cgao.log

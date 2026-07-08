@@ -1,4 +1,4 @@
-from cgao.crawler.browser import Browser
+from cgao.core.browser import Browser
 from cgao.crawler.cookie import CookieManager
 
 

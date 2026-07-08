@@ -1,31 +1,25 @@
-from cgao.crawler.browser import Browser
+from cgao.core.browser import Browser
 
-browser = Browser(
-    headless=False
+
+with Browser() as browser:
+
+    page = browser.new_page()
+
+    page.goto(
+
+        "https://www.xiaohongshu.com"
+
+    )
+
+    input(
+
+        "\n登录完成后按 Enter 保存登录状态..."
+
+    )
+
+    browser.save_state()
+
+print(
+
+    "\nDone."
 )
-
-browser.start()
-
-page = browser.new_page()
-
-page.goto(
-    "https://www.xiaohongshu.com/explore"
-)
-
-print()
-
-print("=" * 60)
-
-print("请扫码登录小红书")
-
-print("登录成功以后")
-
-print("回到终端按 Enter")
-
-print("=" * 60)
-
-input()
-
-browser.save_state()
-
-browser.stop()
