@@ -2,7 +2,10 @@
 Xiaohongshu Crawler
 """
 
+from pathlib import Path
+
 from cgao.crawler.browser import Browser
+from cgao.exporters.csv_exporter import CSVExporter
 from cgao.pages.home_page import HomePage
 from cgao.pages.search_page import SearchPage
 from cgao.parsers.search_parser import SearchParser
@@ -19,6 +22,8 @@ class XiaohongshuCrawler:
 
         self.home = None
 
+        self.keyword = None
+
     def open(self):
 
         self.browser.start()
@@ -28,6 +33,8 @@ class XiaohongshuCrawler:
         self.home = HomePage(self.page)
 
     def search(self, keyword: str):
+
+        self.keyword = keyword
 
         self.home.open()
 
@@ -53,7 +60,11 @@ class XiaohongshuCrawler:
 
             total = cards.count()
 
-            print(f"\rCollected: {len(posts)} | Visible: {total}", end="")
+            print(
+                f"\rCollected: {len(posts)}/{limit} | Visible: {total}",
+                end="",
+                flush=True,
+            )
 
             for i in range(total):
 
@@ -75,8 +86,29 @@ class XiaohongshuCrawler:
                 break
 
             if not scroll.scroll_until_new():
+
+                print("\nNo more new posts.")
+
                 break
 
         print()
 
-        return list(posts.values())[:limit]
+        posts = list(posts.values())[:limit]
+
+        output_dir = Path("data/raw")
+
+        output_dir.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        csv_path = output_dir / f"{self.keyword}.csv"
+
+        CSVExporter().export(
+            posts,
+            csv_path,
+        )
+
+        print(f"CSV Saved -> {csv_path}")
+
+        return posts

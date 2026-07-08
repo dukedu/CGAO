@@ -1,4 +1,23 @@
+import argparse
+
 from cgao.crawler.xiaohongshu import XiaohongshuCrawler
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--keyword",
+    default="DeepSeek"
+)
+
+parser.add_argument(
+    "--limit",
+    type=int,
+    default=100
+)
+
+args = parser.parse_args()
+
 
 crawler = XiaohongshuCrawler(
     headless=False
@@ -8,11 +27,11 @@ try:
 
     crawler.open()
 
-    crawler.search("DeepSeek")
+    crawler.search(args.keyword)
 
-    print("\n开始自动采集...\n")
-
-    posts = crawler.collect(limit=100)
+    posts = crawler.collect(
+        limit=args.limit
+    )
 
     print()
 
@@ -21,20 +40,6 @@ try:
     print(f"Collected {len(posts)} posts")
 
     print("=" * 80)
-
-    for i, post in enumerate(posts[:10], start=1):
-
-        print(f"[{i}]")
-
-        print("Title :", post.title)
-
-        print("Author:", post.author)
-
-        print("Likes :", post.like_count)
-
-        print("URL   :", post.url)
-
-        print("-" * 80)
 
 finally:
 
