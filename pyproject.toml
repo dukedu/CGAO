@@ -19,7 +19,9 @@ dependencies = [
     "pydantic",
     "python-dotenv",
     "pandas",
-    "openpyxl"
+    "openpyxl",
+    "PyYAML",
+    "beautifulsoup4"
 ]
 
 [tool.setuptools]

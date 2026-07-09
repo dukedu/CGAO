@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from cgao.exporters.csv_exporter import CSVExporter
+from cgao.exporters.excel_exporter import ExcelExporter
 from cgao.exporters.json_exporter import JSONExporter
 
 
@@ -13,6 +14,8 @@ class ExportService:
         self.csv = CSVExporter()
 
         self.json = JSONExporter()
+
+        self.excel = ExcelExporter()
 
     def csv_export(
 
@@ -59,6 +62,32 @@ class ExportService:
         )
 
         self.json.export(
+
+            posts,
+
+            path,
+
+        )
+
+    def excel_export(
+
+        self,
+
+        posts,
+
+        path,
+
+    ):
+
+        Path(path).parent.mkdir(
+
+            parents=True,
+
+            exist_ok=True,
+
+        )
+
+        self.excel.export(
 
             posts,
 

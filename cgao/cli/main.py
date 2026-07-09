@@ -67,6 +67,14 @@ def build_parser():
 
     collect.add_argument(
 
+        "--excel",
+
+        action="store_true",
+
+    )
+
+    collect.add_argument(
+
         "--headless",
 
         action="store_true",
@@ -100,6 +108,16 @@ def collect(args):
 
     )
 
+    excel_path = (
+
+        f"data/raw/{args.keyword}.xlsx"
+
+        if args.excel
+
+        else None
+
+    )
+
     posts = pipe.collect(
 
         keyword=args.keyword,
@@ -109,6 +127,8 @@ def collect(args):
         csv=csv_path,
 
         json=json_path,
+
+        excel=excel_path,
 
     )
 

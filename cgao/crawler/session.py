@@ -26,4 +26,4 @@ class SessionManager:
 
     def close(self):
 
-        self.browser.close()
+        self.browser.stop()

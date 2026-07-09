@@ -22,6 +22,7 @@ class Pipeline:
         limit: int = 100,
         csv: str | None = None,
         json: str | None = None,
+        excel: str | None = None,
     ):
 
         try:
@@ -65,6 +66,13 @@ class Pipeline:
                 self.exporter.json_export(
                     results,
                     json,
+                )
+
+            if excel:
+
+                self.exporter.excel_export(
+                    results,
+                    excel,
                 )
 
             return results
