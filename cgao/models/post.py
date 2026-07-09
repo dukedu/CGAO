@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from urllib.parse import urlencode
 
 
 @dataclass(slots=True)
@@ -36,18 +37,23 @@ class Post:
 
             return ""
 
-        if self.xsec_token:
-
-            return (
-                "https://www.xiaohongshu.com/explore/"
-                f"{self.note_id}"
-                f"?xsec_token={self.xsec_token}"
-            )
-
-        return (
+        base = (
             "https://www.xiaohongshu.com/explore/"
             f"{self.note_id}"
         )
+
+        if self.xsec_token:
+
+            query = urlencode(
+                {
+                    "xsec_token": self.xsec_token,
+                    "xsec_source": "pc_search",
+                }
+            )
+
+            return f"{base}?{query}"
+
+        return base
 
     @property
     def engagement(self):

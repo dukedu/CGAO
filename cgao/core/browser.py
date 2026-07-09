@@ -13,10 +13,12 @@ from playwright.sync_api import sync_playwright
 
 from cgao.core.config import (
     HEADLESS,
+    STATE_DIR,
     STATE_FILE,
     TIMEOUT,
     VIEWPORT,
 )
+from cgao.core.constants import USER_AGENT
 
 from cgao.core.logger import logger
 
@@ -49,6 +51,12 @@ class Browser:
 
         self.page: Page | None = None
 
+        self.profile_dir = Path(
+
+            STATE_DIR
+
+        ) / "profile"
+
     # --------------------------------------------------
 
     def start(self):
@@ -61,17 +69,31 @@ class Browser:
 
         self.playwright = sync_playwright().start()
 
-        self.browser = self.playwright.chromium.launch(
-
-            headless=self.headless,
-
-        )
-
         kwargs = {
 
             "viewport": VIEWPORT,
 
+            "user_agent": USER_AGENT,
+
+            "locale": "zh-CN",
+
+            "timezone_id": "Asia/Shanghai",
+
+            "device_scale_factor": 1,
+
+            "is_mobile": False,
+
+            "has_touch": False,
+
         }
+
+        self.profile_dir.mkdir(
+
+            parents=True,
+
+            exist_ok=True,
+
+        )
 
         state = Path(
 
@@ -83,13 +105,7 @@ class Browser:
 
             logger.info(
 
-                "Loading login state..."
-
-            )
-
-            kwargs["storage_state"] = str(
-
-                state
+                "Login state file found."
 
             )
 
@@ -101,13 +117,33 @@ class Browser:
 
             )
 
-        self.context = self.browser.new_context(
+        logger.info(
+
+            f"Using browser profile: {self.profile_dir}"
+
+        )
+
+        self.context = self.playwright.chromium.launch_persistent_context(
+
+            user_data_dir=str(
+
+                self.profile_dir
+
+            ),
+
+            headless=self.headless,
 
             **kwargs
 
         )
 
-        self.page = self.context.new_page()
+        if self.context.pages:
+
+            self.page = self.context.pages[0]
+
+        else:
+
+            self.page = self.context.new_page()
 
         self.page.set_default_timeout(
 
@@ -149,15 +185,31 @@ class Browser:
 
         )
 
-        self.context.storage_state(
+        try:
 
-            path=str(
+            self.context.storage_state(
 
-                STATE_FILE
+                path=str(
+
+                    STATE_FILE
+
+                ),
+
+                indexed_db=True,
 
             )
 
-        )
+        except TypeError:
+
+            self.context.storage_state(
+
+                path=str(
+
+                    STATE_FILE
+
+                )
+
+            )
 
         logger.info(
 

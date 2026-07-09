@@ -155,4 +155,67 @@ def create_tables(conn: Connection):
     )
     """)
 
+    migrate_tables(conn)
+
     conn.commit()
+
+
+def migrate_tables(conn: Connection):
+
+    ensure_columns(
+        conn,
+        "authors",
+        {
+            "description": "TEXT",
+            "gender": "TEXT",
+            "follower_count": "INTEGER DEFAULT 0",
+            "following_count": "INTEGER DEFAULT 0",
+            "note_count": "INTEGER DEFAULT 0",
+            "liked_count": "INTEGER DEFAULT 0",
+            "verified": "INTEGER DEFAULT 0",
+        },
+    )
+
+    ensure_columns(
+        conn,
+        "images",
+        {
+            "file_id": "TEXT",
+            "format": "TEXT",
+            "size": "INTEGER",
+            "image_order": "INTEGER",
+        },
+    )
+
+    ensure_columns(
+        conn,
+        "tags",
+        {
+            "use_count": "INTEGER DEFAULT 0",
+            "view_count": "INTEGER DEFAULT 0",
+        },
+    )
+
+
+def ensure_columns(
+    conn: Connection,
+    table: str,
+    columns: dict[str, str],
+):
+
+    existing = {
+        row[1]
+        for row in conn.execute(
+            f"PRAGMA table_info({table})"
+        ).fetchall()
+    }
+
+    for name, definition in columns.items():
+
+        if name in existing:
+
+            continue
+
+        conn.execute(
+            f"ALTER TABLE {table} ADD COLUMN {name} {definition}"
+        )
